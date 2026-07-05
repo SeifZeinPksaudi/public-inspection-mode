@@ -1,0 +1,98 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+      - rabbitmq
+    env_file:
+      - .env
+    networks:
+      - inspect-network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "127.0.0.1:9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - inspect-network
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:5430:5432"
+    networks:
+      - inspect-network
+
+  redis:
+    image: redis:6
+    command: redis-server --notify-keyspace-events Ex
+    ports:
+      - "127.0.0.1:6370:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - inspect-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "127.0.0.1:5672:5672"    # broker port
+      - "127.0.0.1:15672:15672"  # UI dashboard
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - inspect-network
+
+  celery-m1:
+    build: .
+    command: celery -A config worker -Q M1 --loglevel=info
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+    networks:
+      - inspect-network
+    
+
+
+
+
+
+
+
+volumes:
+  postgres_data:
+  redis_data:
+  elasticsearch_data:
+  rabbitmq_data:
+
+
+networks:
+  inspect-network:
+    driver: bridge
+
