@@ -5,6 +5,9 @@ services:
     build: .
     volumes:
       - .:/app
+    options:
+        max-size: "10m"
+        max-file: "3
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
@@ -24,6 +27,9 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    options:
+        max-size: "10m"
+        max-file: "3
     ports:
       - "127.0.0.1:9200:9200"
     volumes:
@@ -37,6 +43,9 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - .env
+    options:
+        max-size: "10m"
+        max-file: "3
     ports:
       - "127.0.0.1:5432:5432"
     networks:
@@ -47,6 +56,9 @@ services:
     command: redis-server --notify-keyspace-events Ex
     ports:
       - "127.0.0.1:6370:6379"
+    options:
+        max-size: "10m"
+        max-file: "3
     volumes:
       - redis_data:/data
     networks:
@@ -56,6 +68,9 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     hostname: rabbitmq
+    options:
+        max-size: "10m"
+        max-file: "3
     ports:
       - "127.0.0.1:5672:5672"    # broker port
       - "127.0.0.1:15672:15672"  # UI dashboard
@@ -75,6 +90,9 @@ services:
       - redis
     env_file:
       - .env
+    options:
+        max-size: "10m"
+        max-file: "3
     networks:
       - inspect-network
     
