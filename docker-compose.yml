@@ -38,7 +38,7 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:5430:5432"
+      - "127.0.0.1:5432:5432"
     networks:
       - inspect-network
 
@@ -69,7 +69,7 @@ services:
 
   celery-m1:
     build: .
-    command: celery -A config worker -Q M1 --loglevel=info
+    command: celery -A incpectionmode worker -Q M1 --loglevel=info --concurrency=3
     depends_on:
       - db
       - redis
@@ -94,5 +94,6 @@ volumes:
 
 networks:
   inspect-network:
+    name: inspect-network
     driver: bridge
 
